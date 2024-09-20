@@ -21,7 +21,7 @@ const Header = () => {
       </HeaderWrapper>
       {isMenuOpen && (
         <MenuContainer>
-          <Menu />
+          <Menu setIsMenuOpen={setIsMenuOpen} />
         </MenuContainer>
       )}
     </>

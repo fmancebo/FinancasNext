@@ -1,21 +1,30 @@
-// src/app/components/Menu/index.tsx
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { MenuWrapper, MenuItem, LogoutButton } from "./styles";
 
-const Menu = () => {
+interface MenuProps {
+  setIsMenuOpen: (isOpen: boolean) => void; // Adiciona a prop
+}
+
+const Menu = ({ setIsMenuOpen }: MenuProps) => {
   const handleSignOut = () => {
-    // Chama o método signOut do NextAuth
-    signOut({ callbackUrl: "/api/auth/signin" }); // Redireciona para a página inicial após o sign-out
+    signOut({ callbackUrl: "/api/auth/signin" });
+    setIsMenuOpen(false); // Fecha o menu após o sign-out
+  };
+
+  const handleLinkClick = () => {
+    setIsMenuOpen(false); // Fecha o menu ao clicar em um link
   };
 
   return (
     <MenuWrapper>
-      <MenuItem>Dashboard</MenuItem>
-      <MenuItem>Contas</MenuItem>
-      <MenuItem>
-        <Link href="/AddTransaction">Adicionar Conta</Link>
-      </MenuItem>
+      <MenuItem onClick={handleLinkClick}>Dashboard</MenuItem>
+      <Link href="/Count">
+        <MenuItem onClick={handleLinkClick}>Contas</MenuItem>
+      </Link>
+      <Link href="/AddTransaction">
+        <MenuItem onClick={handleLinkClick}>Adicionar Conta</MenuItem>
+      </Link>
       <LogoutButton onClick={handleSignOut}>Sair</LogoutButton>
     </MenuWrapper>
   );
