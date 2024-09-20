@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import User from "../../../../models/User";
 import { createUser } from "../../../../controllers/userController";
 import { checkPassword } from "../../../../services/auth";
-import databaseInstance from "../../../../database"; //instância do banco de dados
+import databaseInstance from "../../../../database"; // instância do banco de dados
 
 export const options: NextAuthOptions = {
   providers: [
@@ -17,17 +17,24 @@ export const options: NextAuthOptions = {
 
         const existingUser = await User.findOne({ email: profile.email });
 
+        let userId;
         if (!existingUser) {
-          await createUser({
+          const newUser = await createUser({
             name: profile.name!,
             email: profile.email!,
             password: "", // Pode ser uma senha padrão ou string vazia
             authMethod: "google",
           });
+          userId = newUser._id.toString(); // Pegue o _id do novo usuário
+        } else {
+          userId = existingUser._id.toString(); // Pegue o _id do usuário existente
         }
 
+        // Log do ID do usuário
+        console.log("User ID:", userId);
+
         return {
-          id: profile.sub!,
+          id: userId, // ID cadastrado do usuario
           name: profile.name!,
           email: profile.email!,
           image: profile.picture,
