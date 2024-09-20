@@ -1,18 +1,17 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 
-// Interface para o documento da conta
 interface IConta extends Document {
   usuarioId: mongoose.Schema.Types.ObjectId;
   valor: number;
-  tipo: "entrada" | "saída";
-  forma: "débito" | "crédito";
+  descricao: string;
+  tipo: "entrada" | "saida";
+  forma: "debito" | "credito";
   dataVencimento?: Date;
   status: "pendente" | "paga" | "vencida";
   criadoEm: Date;
 }
 
-// Definição do esquema para o modelo de Conta
-const contaSchema = new Schema(
+const contaSchema = new Schema<IConta>(
   {
     usuarioId: {
       type: Schema.Types.ObjectId,
@@ -23,6 +22,10 @@ const contaSchema = new Schema(
       type: Number,
       required: true,
     },
+    descricao: {
+      type: String,
+      required: true,
+    },
     tipo: {
       type: String,
       enum: ["entrada", "saida"],
@@ -30,7 +33,7 @@ const contaSchema = new Schema(
     },
     forma: {
       type: String,
-      enum: ["debito", "credito"],
+      enum: ["debito", "credito", "outro"],
       required: true,
     },
     dataVencimento: {
@@ -42,15 +45,11 @@ const contaSchema = new Schema(
       enum: ["pendente", "paga", "vencida"],
       required: false,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
   { timestamps: true }
 );
 
-// Criação do modelo a partir do esquema
-const Conta = mongoose.model<IConta>("Conta", contaSchema);
+const Conta: Model<IConta> =
+  mongoose.models.Conta || mongoose.model<IConta>("Conta", contaSchema);
 
 export default Conta;

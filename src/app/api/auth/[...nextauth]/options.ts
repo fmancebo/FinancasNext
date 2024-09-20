@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import User from "../../../../models/User";
 import { createUser } from "../../../../controllers/userController";
 import { checkPassword } from "../../../../services/auth";
+import databaseInstance from "../../../../database"; //instância do banco de dados
 
 export const options: NextAuthOptions = {
   providers: [
@@ -11,14 +12,15 @@ export const options: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       async profile(profile) {
-        // Verifica se o usuário existe; se não, cria um novo
+        // Garantia que a conexão com o banco de dados está estabelecida
+        await databaseInstance.connect();
+
         const existingUser = await User.findOne({ email: profile.email });
 
         if (!existingUser) {
           await createUser({
             name: profile.name!,
             email: profile.email!,
-            // Password é opcional e será uma string vazia ou uma senha gerada
             password: "", // Pode ser uma senha padrão ou string vazia
             authMethod: "google",
           });
@@ -39,33 +41,33 @@ export const options: NextAuthOptions = {
         password: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
+        // Garantia que a conexão com o banco de dados está estabelecida
+        await databaseInstance.connect();
+
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
-        // Procura o usuário no banco de dados
         const user = await User.findOne({ email: credentials.email });
 
         if (!user) {
-          return null; // Retorna null se o usuário não for encontrado
+          return null;
         }
 
-        // Verifica a senha usando a função checkPassword
         const isPasswordValid = await checkPassword(
           credentials.password,
           user.password
         );
 
         if (!isPasswordValid) {
-          return null; // Retorna null se a senha estiver incorreta
+          return null;
         }
 
-        // Retorna o usuário se as credenciais estiverem corretas
         return {
-          id: user._id.toString(), // Cast do _id para string
+          id: user._id.toString(),
           name: user.name,
           email: user.email,
-          isAdmin: user.isAdmin, // Certifique-se de retornar o isAdmin aqui
+          isAdmin: user.isAdmin,
         };
       },
     }),
@@ -80,7 +82,7 @@ export const options: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.isAdmin = user.isAdmin || false; // Inclui isAdmin no token
+        token.isAdmin = user.isAdmin || false;
       }
       return token;
     },

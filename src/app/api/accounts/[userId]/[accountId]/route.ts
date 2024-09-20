@@ -9,6 +9,7 @@ import {
 // Tipos específicos para os dados da requisição
 interface UpdateAccountData {
   valor?: number;
+  descricao?: string;
   tipo?: string;
   forma?: string;
   dataVencimento?: string;
