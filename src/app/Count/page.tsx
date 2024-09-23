@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { FaArrowCircleUp, FaArrowCircleDown, FaSearch } from "react-icons/fa";
@@ -37,7 +37,7 @@ const Contas: React.FC = () => {
   const [contas, setContas] = useState<Conta[]>([]); // Estado para armazenar as contas
 
   // Função para buscar as contas
-  const fetchContas = async () => {
+  const fetchContas = useCallback(async () => {
     if (!session?.user?.id) {
       console.error("Usuário não autenticado");
       return;
@@ -60,11 +60,11 @@ const Contas: React.FC = () => {
     } catch (error) {
       console.error("Erro ao buscar contas:", error);
     }
-  };
+  }, [session]);
 
   useEffect(() => {
     fetchContas();
-  }, [session]); // Chama a função sempre que a sessão muda
+  }, [fetchContas]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
