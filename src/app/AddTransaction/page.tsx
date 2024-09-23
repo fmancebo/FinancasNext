@@ -15,20 +15,18 @@ import {
 } from "./styles";
 
 const AddTransaction = () => {
-  const { data: session } = useSession(); // Obtém a sessão do NextAuth
+  const { data: session } = useSession();
   const [formData, setFormData] = useState({
     valor: "",
     descricao: "",
     tipo: "entrada",
     forma: "",
     dataVencimento: "",
+    parcelas: 1,
     status: "pendente",
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  // Logs para depuração
-  console.log("Sessão do NextAuth:", session);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -43,15 +41,11 @@ const AddTransaction = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Verifica e loga o ID do usuário
     if (!session?.user?.id) {
       console.error("Usuário não está autenticado");
       setError("Usuário não está autenticado");
       return;
     }
-
-    console.log("ID do usuário:", session.user.id);
-    console.log("Dados do formulário:", formData);
 
     try {
       const response = await fetch(`/api/accounts/${session.user.id}`, {
@@ -61,9 +55,6 @@ const AddTransaction = () => {
         },
         body: JSON.stringify(formData),
       });
-
-      // Loga a resposta da API
-      console.log("Resposta da API:", response);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -83,6 +74,7 @@ const AddTransaction = () => {
         tipo: "entrada",
         forma: "",
         dataVencimento: "",
+        parcelas: 1, // Resetar o número de parcelas
         status: "pendente",
       });
     } catch (error) {
@@ -169,7 +161,6 @@ const AddTransaction = () => {
             onChange={handleChange}
             required
           >
-            <option value="">Selecione</option>
             <option value="debito">Débito</option>
             <option value="credito">Crédito</option>
             <option value="outro">Outro</option>
@@ -184,6 +175,20 @@ const AddTransaction = () => {
             name="dataVencimento"
             value={formData.dataVencimento}
             onChange={handleChange}
+            required
+          />
+        </Field>
+
+        {/* Novo Campo para Parcelas */}
+        <Field>
+          <Label htmlFor="parcelas">Número de Parcelas:</Label>
+          <Input
+            type="number"
+            id="parcelas"
+            name="parcelas"
+            value={formData.parcelas}
+            onChange={handleChange}
+            min="1"
             required
           />
         </Field>

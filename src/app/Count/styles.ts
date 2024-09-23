@@ -169,6 +169,7 @@ export const DeleteButton = styled.button`
 // Estilo do ícone e texto para o tipo de transação
 export const TransactionType = styled.div<TransactionTypeProps>`
   display: flex;
+  margin-top: 10px;
   align-items: center;
   font-size: 16px;
   color: ${(props) => (props.tipo === "entrada" ? "green" : "red")};

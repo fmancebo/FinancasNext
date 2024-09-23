@@ -14,6 +14,7 @@ interface UpdateAccountData {
   forma?: string;
   dataVencimento?: string;
   status?: string;
+  parcelas?: number;
 }
 
 // Função para manipular a solicitação e chamar o controlador

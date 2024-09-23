@@ -1,5 +1,6 @@
 import Account from "../models/Account";
 import User from "../models/User"; // Importar o modelo User
+import { addMonths, setDate } from "date-fns";
 
 // Tipo para os dados da conta
 interface AccountData {
@@ -9,6 +10,7 @@ interface AccountData {
   forma?: string;
   dataVencimento?: string;
   status?: string;
+  parcelas?: number;
 }
 
 // Tipo para os dados da conta (atualização)
@@ -19,6 +21,7 @@ interface UpdateAccountData {
   forma?: string;
   dataVencimento?: string;
   status?: string;
+  parcelas?: number;
 }
 
 // Função para listar todas as contas de um usuário específico
@@ -74,11 +77,17 @@ export async function showAccount(userId: string, accountId: string) {
   }
 }
 
-// Função para criar uma nova conta
-export async function createAccount(userId: string, data?: AccountData) {
+// Função para criar uma nova conta ou dividir em parcelas
+export async function createAccount(userId: string, data: AccountData) {
   try {
     if (!data) {
       throw new Error("Data is required.");
+    }
+
+    const { valor, parcelas = 1, dataVencimento, ...rest } = data;
+
+    if (!valor || !dataVencimento) {
+      throw new Error("Valor and Data de Vencimento are required.");
     }
 
     // Verificar se o usuário existe
@@ -87,13 +96,30 @@ export async function createAccount(userId: string, data?: AccountData) {
       throw new Error("User not found.");
     }
 
-    // Cria uma nova conta associada ao userId
-    const newAccount = await Account.create({
-      ...data,
-      usuarioId: userId,
-    });
+    // Se o número de parcelas for maior que 1, dividimos o valor e criamos múltiplas contas
+    const contasCriadas = [];
+    const valorPorParcela = valor / parcelas;
+    const vencimentoInicial = new Date(dataVencimento); // Primeira data de vencimento
 
-    return newAccount;
+    const diaFixo = vencimentoInicial.getDate(); // Pega o dia do vencimento inicial
+
+    for (let i = 0; i < parcelas; i++) {
+      let vencimentoParcela = addMonths(vencimentoInicial, i); // Adiciona 'i' meses
+      vencimentoParcela = setDate(vencimentoParcela, diaFixo); // Garante que o dia seja sempre o mesmo do inicial
+
+      // Cria uma nova conta para cada parcela
+      const novaConta = await Account.create({
+        usuarioId: userId,
+        valor: valorPorParcela,
+        dataVencimento: vencimentoParcela,
+        parcelas: i + 1, // Aqui estamos incrementando o número da parcela
+        ...rest, // Inclui o restante dos dados (descricao, tipo, forma, status)
+      });
+
+      contasCriadas.push(novaConta);
+    }
+
+    return contasCriadas; // Retorna as contas criadas
   } catch (err) {
     console.error(err);
     throw new Error("Internal server error.");

@@ -30,8 +30,33 @@ export const Input = styled.input`
 export const Select = styled.select`
   width: 100%;
   padding: 10px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #004d1a;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  option {
+    background-color: #004d1a;
+    color: white;
+    font-size: 13px;
+  }
+
+  /* Para evitar o foco no estilo padrão */
+  &:focus-visible {
+    outline: none;
+  }
+
+  /* Efeito de hover nas opções */
+  &:hover {
+    background-color: #00532d; /* Cor de fundo ao passar o mouse */
+  }
 `;
 
 export const RadioGroup = styled.div`

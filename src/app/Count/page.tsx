@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { FaArrowCircleUp, FaArrowCircleDown, FaSearch } from "react-icons/fa";
 import {
@@ -18,41 +19,52 @@ import {
 } from "./styles";
 
 interface Conta {
-  id: number;
+  id: string; // Ajuste para string se usar ObjectId do MongoDB
   tipo: "entrada" | "saida";
   valor: number;
   descricao: string;
   forma: string;
   dataVencimento: string;
   status: string;
+  parcelas: number;
 }
 
 const Contas: React.FC = () => {
+  const { data: session } = useSession();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<string | null>(null);
   const [isAscending, setIsAscending] = useState(true);
+  const [contas, setContas] = useState<Conta[]>([]); // Estado para armazenar as contas
 
-  const contas: Conta[] = [
-    {
-      id: 1,
-      tipo: "saida",
-      valor: 500,
-      descricao: "Aluguel",
-      forma: "Débito",
-      dataVencimento: "2024-10-01",
-      status: "Pendente",
-    },
-    {
-      id: 2,
-      tipo: "entrada",
-      valor: 300,
-      descricao: "Salário",
-      forma: "Crédito",
-      dataVencimento: "2024-09-25",
-      status: "Paga",
-    },
-    // Adicione mais contas aqui
-  ];
+  // Função para buscar as contas
+  const fetchContas = async () => {
+    if (!session?.user?.id) {
+      console.error("Usuário não autenticado");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/accounts/${session.user.id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar contas");
+      }
+
+      const data = await response.json();
+      setContas(data);
+    } catch (error) {
+      console.error("Erro ao buscar contas:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchContas();
+  }, [session]); // Chama a função sempre que a sessão muda
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -60,19 +72,19 @@ const Contas: React.FC = () => {
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSortOrder = e.target.value;
-
-    // Se a nova ordenação for a mesma, inverte a direção
     if (newSortOrder === sortOrder) {
       setIsAscending((prev) => !prev);
     } else {
       setSortOrder(newSortOrder);
-      setIsAscending(true); // Reseta para ascendente
+      setIsAscending(true);
     }
   };
 
   const filteredContas = contas
-    .filter((conta) =>
-      conta.descricao.toLowerCase().includes(searchTerm.toLowerCase())
+    .filter(
+      (conta) =>
+        conta.descricao &&
+        conta.descricao.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       if (sortOrder === "vencimento-proximo") {
@@ -109,11 +121,8 @@ const Contas: React.FC = () => {
       }
       return 0; // Sem ordenação
     });
-
   return (
     <PageWrapper>
-      {/* <h2>Suas Contas</h2> */}
-
       <SearchWrapper>
         <SearchInput
           type="text"
@@ -144,6 +153,7 @@ const Contas: React.FC = () => {
               </p>
               <p>Vencimento: {conta.dataVencimento}</p>
               <p>Status: {conta.status}</p>
+              <p>Parcela: {conta.parcelas}</p>
             </div>
 
             <TransactionType tipo={conta.tipo}>

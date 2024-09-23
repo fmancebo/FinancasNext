@@ -13,11 +13,12 @@ interface AccountRequestData {
   forma?: string;
   dataVencimento?: string;
   status?: string;
+  parcelas?: number;
 }
 
 // Função para manipular a solicitação e chamar o controlador
 async function handleRequest<T>(
-  handler: (userId: string, data?: AccountRequestData) => Promise<T>,
+  handler: (userId: string, data: AccountRequestData) => Promise<T>, // Remova o '?' aqui
   req: NextRequest
 ): Promise<NextResponse> {
   try {
@@ -31,7 +32,8 @@ async function handleRequest<T>(
     }
 
     // Extrair dados do corpo da requisição
-    const data = req.method === "POST" ? await req.json() : undefined;
+    const data: AccountRequestData =
+      req.method === "POST" ? await req.json() : {}; // Mude 'undefined' para um objeto vazio
 
     // Adicionar userId à chamada do controlador
     const result = await handler(userId, data);

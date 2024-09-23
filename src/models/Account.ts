@@ -5,9 +5,10 @@ interface IConta extends Document {
   valor: number;
   descricao: string;
   tipo: "entrada" | "saida";
-  forma: "debito" | "credito";
+  forma: "debito" | "credito" | "outro";
   dataVencimento?: Date;
   status: "pendente" | "paga" | "vencida";
+  parcelas?: number;
   criadoEm: Date;
 }
 
@@ -44,6 +45,11 @@ const contaSchema = new Schema<IConta>(
       type: String,
       enum: ["pendente", "paga", "vencida"],
       required: false,
+    },
+    parcelas: {
+      type: Number,
+      required: false,
+      default: 1,
     },
   },
   { timestamps: true }
