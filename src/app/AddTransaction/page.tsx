@@ -20,7 +20,7 @@ const AddTransaction = () => {
     valor: "",
     descricao: "",
     tipo: "entrada",
-    forma: "",
+    forma: "debito",
     dataVencimento: "",
     parcelas: 1,
     status: "pendente",
@@ -47,6 +47,8 @@ const AddTransaction = () => {
       return;
     }
 
+    console.log("Dados da transação:", formData);
+
     try {
       const response = await fetch(`/api/accounts/${session.user.id}`, {
         method: "POST",
@@ -72,7 +74,7 @@ const AddTransaction = () => {
         valor: "",
         descricao: "",
         tipo: "entrada",
-        forma: "",
+        forma: "debito",
         dataVencimento: "",
         parcelas: 1, // Resetar o número de parcelas
         status: "pendente",

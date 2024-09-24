@@ -19,11 +19,11 @@ import {
 } from "./styles";
 
 interface Conta {
-  id: string; // Ajuste para string se usar ObjectId do MongoDB
+  _id: string;
   tipo: "entrada" | "saida";
   valor: number;
   descricao: string;
-  forma: string;
+  forma: "debito" | "credito" | "outro";
   dataVencimento: string;
   status: string;
   parcelas: number;
@@ -35,6 +35,32 @@ const Contas: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<string | null>(null);
   const [isAscending, setIsAscending] = useState(true);
   const [contas, setContas] = useState<Conta[]>([]); // Estado para armazenar as contas
+
+  const formatarStatus = (status: string) => {
+    switch (status) {
+      case "pendente":
+        return "Pendente";
+      case "pago":
+        return "Pago";
+      case "vencido":
+        return "Vencido";
+      default:
+        return status; // Retorna o status original se não houver formatação
+    }
+  };
+
+  const formatarForma = (forma: "debito" | "credito" | "outro") => {
+    switch (forma) {
+      case "debito":
+        return "Débito";
+      case "credito":
+        return "Crédito";
+      case "outro":
+        return "Outro";
+      default:
+        return forma; // Retorna a forma original caso não seja uma das opções
+    }
+  };
 
   // Função para buscar as contas
   const fetchContas = useCallback(async () => {
@@ -55,8 +81,15 @@ const Contas: React.FC = () => {
         throw new Error("Erro ao buscar contas");
       }
 
-      const data = await response.json();
-      setContas(data);
+      const data: Conta[] = await response.json();
+
+      // Transformar o _id em id
+      const contasComId = data.map((conta) => ({
+        ...conta,
+        id: conta._id, // Substitui _id por id
+      }));
+
+      setContas(contasComId);
     } catch (error) {
       console.error("Erro ao buscar contas:", error);
     }
@@ -77,6 +110,38 @@ const Contas: React.FC = () => {
     } else {
       setSortOrder(newSortOrder);
       setIsAscending(true);
+    }
+  };
+
+  const handleDelete = async (id: Conta["_id"]) => {
+    if (!session?.user?.id) {
+      console.error("Usuário não autenticado");
+      return;
+    }
+
+    console.log("userId:", session.user.id);
+    console.log("accountId:", id);
+
+    try {
+      const response = await fetch(`/api/accounts/${session.user.id}/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Erro ao deletar conta:", errorData);
+        throw new Error(
+          `Erro ao deletar conta: ${errorData.message || "Erro desconhecido"}`
+        );
+      }
+
+      console.log("Conta deletada com sucesso.");
+      setContas((prevContas) => prevContas.filter((conta) => conta._id !== id));
+    } catch (error) {
+      console.error("Erro ao deletar conta:", error);
     }
   };
 
@@ -144,16 +209,32 @@ const Contas: React.FC = () => {
       </SortSelect>
 
       {filteredContas.map((conta) => (
-        <AccountWrapper key={conta.id}>
+        <AccountWrapper key={conta._id}>
           <AccountDetails>
             <div>
               <h3>{conta.descricao}</h3>
               <p>
-                {conta.valor} - {conta.forma}
+                <span>
+                  R${" "}
+                  {conta.valor.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  - {formatarForma(conta.forma)}
+                </span>
               </p>
-              <p>Vencimento: {conta.dataVencimento}</p>
-              <p>Status: {conta.status}</p>
-              <p>Parcela: {conta.parcelas}</p>
+              <p>
+                Vencimento:{" "}
+                <span>
+                  {new Date(conta.dataVencimento).toLocaleDateString("pt-BR")}
+                </span>
+              </p>
+              <p>
+                Status: <span>{formatarStatus(conta.status)}</span>
+              </p>
+              <p>
+                Parcela: <span>{conta.parcelas}</span>
+              </p>
             </div>
 
             <TransactionType tipo={conta.tipo}>
@@ -175,7 +256,7 @@ const Contas: React.FC = () => {
             <EditButton>
               <MdEdit size={20} />
             </EditButton>
-            <DeleteButton>
+            <DeleteButton onClick={() => handleDelete(conta._id)}>
               <MdDelete size={20} />
             </DeleteButton>
           </ButtonGroup>

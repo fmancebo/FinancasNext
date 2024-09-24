@@ -115,17 +115,22 @@ export const AccountDetails = styled.div`
   flex-direction: column;
 
   h3 {
-    font-size: 20px;
+    font-size: 1.3rem;
     margin: 0 0 5px;
-    color: #2c3e50;
-    font-weight: 600;
+    color: black;
+    font-weight: bold;
   }
 
   p {
     margin: 3px 0;
-    font-size: 15px;
-    color: #4a565e;
+    font-size: 1rem;
+    color: black;
+    font-weight: 500;
+  }
+
+  span {
     font-weight: bold;
+    color: black;
   }
 `;
 
