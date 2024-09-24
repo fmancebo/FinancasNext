@@ -8,7 +8,7 @@ interface AccountData {
   descricao?: string;
   tipo?: string;
   forma?: string;
-  dataVencimento?: string;
+  dataVencimento?: Date;
   status?: string;
   parcelas?: number;
 }
@@ -99,7 +99,10 @@ export async function createAccount(userId: string, data: AccountData) {
     // Se o número de parcelas for maior que 1, dividimos o valor e criamos múltiplas contas
     const contasCriadas = [];
     const valorPorParcela = valor / parcelas;
-    const vencimentoInicial = new Date(dataVencimento); // Primeira data de vencimento
+
+    // Ajustar a data de vencimento adicionando 1 dia
+    const vencimentoInicial = new Date(dataVencimento);
+    vencimentoInicial.setDate(vencimentoInicial.getDate() + 1); // Adiciona 1 dia
 
     const diaFixo = vencimentoInicial.getDate(); // Pega o dia do vencimento inicial
 
