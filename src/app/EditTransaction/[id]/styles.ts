@@ -48,14 +48,12 @@ export const Select = styled.select`
     font-size: 13px;
   }
 
-  /* Para evitar o foco no estilo padrão */
   &:focus-visible {
     outline: none;
   }
 
-  /* Efeito de hover nas opções */
   &:hover {
-    background-color: #00532d; /* Cor de fundo ao passar o mouse */
+    background-color: #00532d;
   }
 `;
 
@@ -79,7 +77,6 @@ export const Button = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: bold;
 
   &:hover {
     background-color: #004d1a;

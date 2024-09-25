@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { FaArrowCircleUp, FaArrowCircleDown, FaSearch } from "react-icons/fa";
 import {
@@ -253,9 +254,11 @@ const Contas: React.FC = () => {
           </AccountDetails>
 
           <ButtonGroup>
-            <EditButton>
-              <MdEdit size={20} />
-            </EditButton>
+            <Link href={`/EditTransaction/${conta._id}`}>
+              <EditButton>
+                <MdEdit size={20} />
+              </EditButton>
+            </Link>
             <DeleteButton onClick={() => handleDelete(conta._id)}>
               <MdDelete size={20} />
             </DeleteButton>

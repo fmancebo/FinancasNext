@@ -146,6 +146,13 @@ export async function updateAccount(
       throw new Error("User not found.");
     }
 
+    // Ajustar a data de vencimento se estiver presente
+    if (data?.dataVencimento) {
+      const vencimentoDate = new Date(data.dataVencimento);
+      vencimentoDate.setDate(vencimentoDate.getDate() + 1); // Adiciona 1 dia
+      data.dataVencimento = vencimentoDate.toISOString(); // Converte para string
+    }
+
     const updatedAccount = await Account.findOneAndUpdate(
       { _id: accountId, usuarioId: userId },
       {
