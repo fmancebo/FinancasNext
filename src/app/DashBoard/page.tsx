@@ -110,6 +110,7 @@ const MyBarChart = () => {
 
   // Calculando os dados dos gráficos com base nas contas
   const calculateData = () => {
+    // Cálculo para Débito
     const entrada = contas
       .filter(
         (conta) =>
@@ -125,7 +126,7 @@ const MyBarChart = () => {
 
     const disponivel = entrada - saida;
 
-    // Calcular os dados para "outros"
+    // Cálculo para Outros
     const outrosEntrada = contas
       .filter(
         (conta) =>
@@ -140,6 +141,32 @@ const MyBarChart = () => {
       .reduce((acc, conta) => acc + conta.valor, 0);
 
     const outrosDisponivel = outrosEntrada - outrosSaida;
+
+    // Cálculo para Crédito
+    const creditoSaida = contas
+      .filter(
+        (conta) =>
+          conta.tipo === "saida" &&
+          (conta.status === "vencido" || conta.status === "pendente")
+      )
+      .reduce((acc, conta) => acc + conta.valor, 0);
+
+    const creditoEntradaAtualizada =
+      contas
+        .filter(
+          (conta) =>
+            conta.tipo === "entrada" &&
+            conta.forma === "credito" &&
+            conta.status === "paga"
+        )
+
+        .sort(
+          (a, b) =>
+            new Date(b.dataVencimento).getTime() -
+            new Date(a.dataVencimento).getTime()
+        )[0]?.valor || 0; // Pegando o último valor
+
+    const creditoDisponivel = (creditoEntradaAtualizada || 0) - creditoSaida;
 
     return {
       debitData: {
@@ -157,7 +184,11 @@ const MyBarChart = () => {
         datasets: [
           {
             label: "Crédito",
-            data: [4000, 3000, 2000], // Mantendo os dados de exemplo
+            data: [
+              creditoEntradaAtualizada || 0,
+              creditoSaida,
+              creditoDisponivel,
+            ],
             backgroundColor: [colors.entrada, colors.saida, colors.disponivel],
           },
         ],
@@ -167,7 +198,7 @@ const MyBarChart = () => {
         datasets: [
           {
             label: "Outros",
-            data: [outrosEntrada, outrosSaida, outrosDisponivel], // Dados atualizados
+            data: [outrosEntrada, outrosSaida, outrosDisponivel],
             backgroundColor: [colors.entrada, colors.saida, colors.disponivel],
           },
         ],
