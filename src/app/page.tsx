@@ -1,7 +1,9 @@
+import DashBoard from "../app/DashBoard/page";
+
 export default function Home() {
   return (
     <>
-      <h1>Page</h1>
+      <DashBoard />
     </>
   );
 }

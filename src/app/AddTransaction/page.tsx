@@ -13,9 +13,11 @@ import {
   RadioButton,
   Button,
 } from "./styles";
+import { LoadingComponents, SpinnerComponents } from "../components/Loading";
 
 const AddTransaction = () => {
   const { data: session } = useSession();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     valor: "",
     descricao: "",
@@ -48,7 +50,7 @@ const AddTransaction = () => {
     }
 
     console.log("Dados da transação:", formData);
-
+    setLoading(true);
     try {
       const response = await fetch(`/api/accounts/${session.user.id}`, {
         method: "POST",
@@ -82,14 +84,15 @@ const AddTransaction = () => {
     } catch (error) {
       console.error("Erro ao enviar os dados:", error);
       setError("Erro ao adicionar transação");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <FormWrapper>
       <h2>Adicionar Transação</h2>
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+
       <form onSubmit={handleSubmit}>
         <Field>
           <Label htmlFor="valor">Valor:</Label>
@@ -181,7 +184,6 @@ const AddTransaction = () => {
           />
         </Field>
 
-        {/* Novo Campo para Parcelas */}
         <Field>
           <Label htmlFor="parcelas">Número de Parcelas:</Label>
           <Input
@@ -208,8 +210,19 @@ const AddTransaction = () => {
             <option value="vencida">Vencida</option>
           </Select>
         </Field>
-
-        <Button type="submit">Adicionar Transação</Button>
+        {loading ? (
+          <LoadingComponents>
+            <SpinnerComponents />
+          </LoadingComponents>
+        ) : (
+          <Button type="submit">Adicionar Transação</Button>
+        )}
+        {success && (
+          <p style={{ color: "green", textAlign: "center", marginTop: "5px" }}>
+            {success}
+          </p>
+        )}
+        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
       </form>
     </FormWrapper>
   );

@@ -14,6 +14,7 @@ import {
 import { ChartContainer, ChartWrapper } from "./styles";
 import { formatCurrency } from "@/helpers/currencyformat";
 import { TooltipItem } from "chart.js";
+import { Loading, Spinner } from "../components/Loading";
 
 // Registre os componentes do Chart.js
 ChartJS.register(
@@ -69,8 +70,9 @@ const options = {
   },
 };
 
-const MyBarChart = () => {
+const DashBoard = () => {
   const { data: session } = useSession();
+  const [loading, setLoading] = useState(false);
   const [contas, setContas] = useState<Conta[]>([]);
 
   interface Conta {
@@ -90,7 +92,7 @@ const MyBarChart = () => {
       console.error("Usuário não autenticado");
       return;
     }
-
+    setLoading(true);
     try {
       const response = await fetch(`/api/accounts/${session.user.id}`, {
         method: "GET",
@@ -114,6 +116,8 @@ const MyBarChart = () => {
       setContas(contasComId);
     } catch (error) {
       console.error("Erro ao buscar contas:", error);
+    } finally {
+      setLoading(false); // Finaliza o carregamento
     }
   }, [session]);
 
@@ -224,21 +228,29 @@ const MyBarChart = () => {
 
   return (
     <ChartContainer>
-      <h2>Resumo Financeiro</h2>
-      <ChartWrapper>
-        <h3>Débito</h3>
-        <Bar data={debitData} options={options} />
-      </ChartWrapper>
-      <ChartWrapper>
-        <h3>Crédito</h3>
-        <Bar data={creditData} options={options} />
-      </ChartWrapper>
-      <ChartWrapper>
-        <h3>Outros</h3>
-        <Bar data={otherData} options={options} />
-      </ChartWrapper>
+      {loading ? (
+        <Loading>
+          <Spinner />
+        </Loading>
+      ) : (
+        <>
+          <h2>Resumo Financeiro</h2>
+          <ChartWrapper>
+            <h3>Débito</h3>
+            <Bar data={debitData} options={options} />
+          </ChartWrapper>
+          <ChartWrapper>
+            <h3>Crédito</h3>
+            <Bar data={creditData} options={options} />
+          </ChartWrapper>
+          <ChartWrapper>
+            <h3>Outros</h3>
+            <Bar data={otherData} options={options} />
+          </ChartWrapper>
+        </>
+      )}
     </ChartContainer>
   );
 };
 
-export default MyBarChart;
+export default DashBoard;

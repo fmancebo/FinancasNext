@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { FaArrowCircleUp, FaArrowCircleDown, FaSearch } from "react-icons/fa";
+import { Loading, Spinner } from "../components/Loading";
 import {
   PageWrapper,
   SearchWrapper,
@@ -35,6 +36,8 @@ const Contas: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<string | null>(null);
   const [isAscending, setIsAscending] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   const [contas, setContas] = useState<Conta[]>([]); // Estado para armazenar as contas
 
   const formatarStatus = (status: string) => {
@@ -69,7 +72,7 @@ const Contas: React.FC = () => {
       console.error("Usuário não autenticado");
       return;
     }
-
+    setLoading(true);
     try {
       const response = await fetch(`/api/accounts/${session.user.id}`, {
         method: "GET",
@@ -93,6 +96,8 @@ const Contas: React.FC = () => {
       setContas(contasComId);
     } catch (error) {
       console.error("Erro ao buscar contas:", error);
+    } finally {
+      setLoading(false); // Finaliza o carregamento
     }
   }, [session]);
 
@@ -119,7 +124,7 @@ const Contas: React.FC = () => {
       console.error("Usuário não autenticado");
       return;
     }
-
+    setLoading(true);
     console.log("userId:", session.user.id);
     console.log("accountId:", id);
 
@@ -143,6 +148,8 @@ const Contas: React.FC = () => {
       setContas((prevContas) => prevContas.filter((conta) => conta._id !== id));
     } catch (error) {
       console.error("Erro ao deletar conta:", error);
+    } finally {
+      setLoading(false); // Finaliza o carregamento
     }
   };
 
@@ -189,82 +196,92 @@ const Contas: React.FC = () => {
     });
   return (
     <PageWrapper>
-      <SearchWrapper>
-        <SearchInput
-          type="text"
-          placeholder="Buscar conta pelo nome..."
-          value={searchTerm}
-          onChange={handleSearch}
-        />
-        <SearchButton>
-          <FaSearch />
-        </SearchButton>
-      </SearchWrapper>
+      {loading ? (
+        <Loading>
+          <Spinner />
+        </Loading>
+      ) : (
+        <>
+          <SearchWrapper>
+            <SearchInput
+              type="text"
+              placeholder="Buscar conta pelo nome..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            <SearchButton>
+              <FaSearch />
+            </SearchButton>
+          </SearchWrapper>
 
-      <SortSelect value={sortOrder || ""} onChange={handleSortChange}>
-        <option value="">Ordenar por</option>
-        <option value="vencimento-proximo">Vencimento Próximo</option>
-        <option value="vencimento-distante">Vencimento Distante</option>
-        <option value="a-pagar">A Pagar</option>
-        <option value="a-receber">A Receber</option>
-      </SortSelect>
+          <SortSelect value={sortOrder || ""} onChange={handleSortChange}>
+            <option value="">Ordenar por</option>
+            <option value="vencimento-proximo">Vencimento Próximo</option>
+            <option value="vencimento-distante">Vencimento Distante</option>
+            <option value="a-pagar">A Pagar</option>
+            <option value="a-receber">A Receber</option>
+          </SortSelect>
 
-      {filteredContas.map((conta) => (
-        <AccountWrapper key={conta._id}>
-          <AccountDetails>
-            <div>
-              <h3>{conta.descricao}</h3>
-              <p>
-                <span>
-                  R${" "}
-                  {conta.valor.toLocaleString("pt-BR", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  - {formatarForma(conta.forma)}
-                </span>
-              </p>
-              <p>
-                Vencimento:{" "}
-                <span>
-                  {new Date(conta.dataVencimento).toLocaleDateString("pt-BR")}
-                </span>
-              </p>
-              <p>
-                Status: <span>{formatarStatus(conta.status)}</span>
-              </p>
-              <p>
-                Parcela: <span>{conta.parcelas}</span>
-              </p>
-            </div>
+          {filteredContas.map((conta) => (
+            <AccountWrapper key={conta._id}>
+              <AccountDetails>
+                <div>
+                  <h3>{conta.descricao}</h3>
+                  <p>
+                    <span>
+                      R${" "}
+                      {conta.valor.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      - {formatarForma(conta.forma)}
+                    </span>
+                  </p>
+                  <p>
+                    Vencimento:{" "}
+                    <span>
+                      {new Date(conta.dataVencimento).toLocaleDateString(
+                        "pt-BR"
+                      )}
+                    </span>
+                  </p>
+                  <p>
+                    Status: <span>{formatarStatus(conta.status)}</span>
+                  </p>
+                  <p>
+                    Parcela: <span>{conta.parcelas}</span>
+                  </p>
+                </div>
 
-            <TransactionType tipo={conta.tipo}>
-              {conta.tipo === "entrada" ? (
-                <>
-                  <FaArrowCircleUp color="green" size={24} />
-                  <span>A Receber</span>
-                </>
-              ) : (
-                <>
-                  <FaArrowCircleDown color="red" size={24} />
-                  <span>A Pagar</span>
-                </>
-              )}
-            </TransactionType>
-          </AccountDetails>
+                <TransactionType tipo={conta.tipo}>
+                  {conta.tipo === "entrada" ? (
+                    <>
+                      <FaArrowCircleUp color="green" size={24} />
+                      <span>A Receber</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaArrowCircleDown color="red" size={24} />
+                      <span>A Pagar</span>
+                    </>
+                  )}
+                </TransactionType>
+              </AccountDetails>
 
-          <ButtonGroup>
-            <Link href={`/EditTransaction/${conta._id}`}>
-              <EditButton>
-                <MdEdit size={20} />
-              </EditButton>
-            </Link>
-            <DeleteButton onClick={() => handleDelete(conta._id)}>
-              <MdDelete size={20} />
-            </DeleteButton>
-          </ButtonGroup>
-        </AccountWrapper>
-      ))}
+              <ButtonGroup>
+                <Link href={`/EditTransaction/${conta._id}`}>
+                  <EditButton>
+                    <MdEdit size={20} />
+                  </EditButton>
+                </Link>
+                <DeleteButton onClick={() => handleDelete(conta._id)}>
+                  <MdDelete size={20} />
+                </DeleteButton>
+              </ButtonGroup>
+            </AccountWrapper>
+          ))}
+        </>
+      )}
     </PageWrapper>
   );
 };
