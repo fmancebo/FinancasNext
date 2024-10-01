@@ -12,6 +12,8 @@ import {
   Legend,
 } from "chart.js";
 import { ChartContainer, ChartWrapper } from "./styles";
+import { formatCurrency } from "@/helpers/currencyformat";
+import { TooltipItem } from "chart.js";
 
 // Registre os componentes do Chart.js
 ChartJS.register(
@@ -40,6 +42,17 @@ const options = {
     tooltip: {
       mode: "index" as const,
       intersect: false,
+      callbacks: {
+        label: (context: TooltipItem<"bar">) => {
+          // Define o tipo do parâmetro
+          const value = context.raw; // Obtém o valor numérico
+          if (typeof value === "number") {
+            // Verifica se o valor é um número
+            return formatCurrency(value); // Formata para exibir
+          }
+          return ""; // Retorna uma string vazia caso não seja um número
+        },
+      },
     },
   },
   scales: {
