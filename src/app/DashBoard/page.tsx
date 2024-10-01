@@ -138,7 +138,12 @@ const DashBoard = () => {
       .reduce((acc, conta) => acc + conta.valor, 0);
 
     const saida = contas
-      .filter((conta) => conta.tipo === "saida" && conta.forma === "debito")
+      .filter(
+        (conta) =>
+          conta.tipo === "saida" &&
+          conta.forma === "debito" &&
+          conta.status === "paga"
+      )
       .reduce((acc, conta) => acc + conta.valor, 0);
 
     const disponivel = entrada - saida;
@@ -154,7 +159,12 @@ const DashBoard = () => {
       .reduce((acc, conta) => acc + conta.valor, 0);
 
     const outrosSaida = contas
-      .filter((conta) => conta.tipo === "saida" && conta.forma === "outro")
+      .filter(
+        (conta) =>
+          conta.tipo === "saida" &&
+          conta.forma === "outro" &&
+          conta.status === "paga"
+      )
       .reduce((acc, conta) => acc + conta.valor, 0);
 
     const outrosDisponivel = outrosEntrada - outrosSaida;

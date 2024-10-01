@@ -76,65 +76,65 @@ export async function showAccount(userId: string, accountId: string) {
     throw new Error("Internal server error.");
   }
 }
-
-// Função para criar uma nova conta ou dividir em parcelas
+// Função para criar uma conta atualizando alguns dados
 export async function createAccount(userId: string, data: AccountData) {
   try {
     if (!data) {
       throw new Error("Data is required.");
     }
 
-    const { valor, parcelas = 1, dataVencimento, ...rest } = data;
+    const { valor, parcelas = 1, dataVencimento, forma, ...rest } = data;
 
-    if (!valor || !dataVencimento) {
-      throw new Error("Valor and Data de Vencimento are required.");
+    if (!valor || !dataVencimento || !forma) {
+      throw new Error("Valor, Data de Vencimento and Forma are required.");
     }
 
-    // Verificar se o usuário existe
-    const user = await User.findById(userId);
+    const user = await User.findById(userId); // Busca o usuário no banco
     if (!user) {
       throw new Error("User not found.");
     }
 
-    // Ajustar a data de vencimento adicionando 1 dia
-    const vencimentoInicial = new Date(dataVencimento);
+    const vencimentoInicial = new Date(dataVencimento); // Cria a data de vencimento inicial
     vencimentoInicial.setDate(vencimentoInicial.getDate() + 1); // Adiciona 1 dia
 
-    // Atualizar contas existentes com status "pendente" ou "vencida"
-    await Account.updateMany(
-      {
-        usuarioId: userId,
-        dataVencimento: { $lt: vencimentoInicial }, // Data de vencimento anterior à nova conta
-        status: { $in: ["pendente", "vencida"] }, // Status "pendente" ou "vencida"
-      },
-      { $set: { status: "paga" } } // Atualiza o status para "pagas"
-    );
+    // Atualiza contas existentes apenas se a forma for "credito"
+    if (forma === "credito") {
+      await Account.updateMany(
+        {
+          usuarioId: userId,
+          dataVencimento: { $lt: vencimentoInicial }, // Filtra vencimentos anteriores
+          status: { $in: ["pendente", "vencida"] }, // Filtra contas pendentes ou vencidas
+          forma: "credito", // Verifica a forma
+        },
+        { $set: { status: "paga" } } // Atualiza o status das contas
+      );
+    }
 
-    // Se o número de parcelas for maior que 1, dividimos o valor e criamos múltiplas contas
     const contasCriadas = [];
     const valorPorParcela = valor / parcelas;
+    const diaFixo = vencimentoInicial.getDate();
 
-    const diaFixo = vencimentoInicial.getDate(); // Pega o dia do vencimento inicial
-
+    // Loop para criar contas baseado no número de parcelas
     for (let i = 0; i < parcelas; i++) {
-      let vencimentoParcela = addMonths(vencimentoInicial, i); // Adiciona 'i' meses
-      vencimentoParcela = setDate(vencimentoParcela, diaFixo); // Garante que o dia seja sempre o mesmo do inicial
+      let vencimentoParcela = addMonths(vencimentoInicial, i);
+      vencimentoParcela = setDate(vencimentoParcela, diaFixo);
 
-      // Cria uma nova conta para cada parcela
+      // Cria nova conta
       const novaConta = await Account.create({
         usuarioId: userId,
         valor: valorPorParcela,
         dataVencimento: vencimentoParcela,
-        parcelas: i + 1, // Incrementa o número da parcela
-        ...rest, // Inclui o restante dos dados (descricao, tipo, forma, status)
+        parcelas: i + 1, // Incrementa número da parcela
+        forma,
+        ...rest,
       });
 
-      contasCriadas.push(novaConta); // Adiciona a nova conta à lista
+      contasCriadas.push(novaConta);
     }
 
-    return contasCriadas; // Retorna as contas criadas
+    return contasCriadas;
   } catch (err) {
-    console.error(err);
+    console.error("Erro ao criar conta:", err);
     throw new Error("Internal server error.");
   }
 }
@@ -146,6 +146,7 @@ export async function updateAccount(
   data?: UpdateAccountData
 ) {
   try {
+    // Verifica se os IDs do usuário e da conta são fornecidos
     if (!userId || !accountId) {
       throw new Error("User ID and Account ID are required.");
     }
@@ -163,22 +164,40 @@ export async function updateAccount(
       data.dataVencimento = vencimentoDate.toISOString(); // Converte para string
     }
 
+    // Atualiza contas existentes apenas se a forma for "credito"
+    if (data?.forma === "credito") {
+      await Account.updateMany(
+        {
+          usuarioId: userId,
+          dataVencimento: {
+            $lt: data?.dataVencimento
+              ? new Date(data.dataVencimento)
+              : new Date(),
+          }, // Vencimentos anteriores
+          status: { $in: ["pendente", "vencida"] }, // Pendentes ou vencidas
+          forma: "credito", // Verifica a forma
+        },
+        { $set: { status: "paga" } } // Atualiza o status
+      );
+    }
+
+    // Realiza a atualização da conta
     const updatedAccount = await Account.findOneAndUpdate(
       { _id: accountId, usuarioId: userId },
       {
         $set: data,
       },
-      { new: true } // Retornar a conta atualizada
+      { new: true } // Retorna a conta atualizada
     );
 
     if (!updatedAccount) {
       throw new Error("Account not found.");
     }
 
-    return updatedAccount;
+    return updatedAccount; // Retorna a conta atualizada
   } catch (err) {
-    console.error(err);
-    throw new Error("Internal server error.");
+    console.error(err); // Log do erro
+    throw new Error("Internal server error."); // Erro genérico
   }
 }
 

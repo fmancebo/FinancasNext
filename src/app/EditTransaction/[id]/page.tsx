@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { FaArrowCircleDown, FaArrowCircleUp } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import {
   FormWrapper,
   Field,
