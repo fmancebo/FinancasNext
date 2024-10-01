@@ -96,13 +96,23 @@ export async function createAccount(userId: string, data: AccountData) {
       throw new Error("User not found.");
     }
 
-    // Se o número de parcelas for maior que 1, dividimos o valor e criamos múltiplas contas
-    const contasCriadas = [];
-    const valorPorParcela = valor / parcelas;
-
     // Ajustar a data de vencimento adicionando 1 dia
     const vencimentoInicial = new Date(dataVencimento);
     vencimentoInicial.setDate(vencimentoInicial.getDate() + 1); // Adiciona 1 dia
+
+    // Atualizar contas existentes com status "pendente" ou "vencida"
+    await Account.updateMany(
+      {
+        usuarioId: userId,
+        dataVencimento: { $lt: vencimentoInicial }, // Data de vencimento anterior à nova conta
+        status: { $in: ["pendente", "vencida"] }, // Status "pendente" ou "vencida"
+      },
+      { $set: { status: "paga" } } // Atualiza o status para "pagas"
+    );
+
+    // Se o número de parcelas for maior que 1, dividimos o valor e criamos múltiplas contas
+    const contasCriadas = [];
+    const valorPorParcela = valor / parcelas;
 
     const diaFixo = vencimentoInicial.getDate(); // Pega o dia do vencimento inicial
 
@@ -115,11 +125,11 @@ export async function createAccount(userId: string, data: AccountData) {
         usuarioId: userId,
         valor: valorPorParcela,
         dataVencimento: vencimentoParcela,
-        parcelas: i + 1, // Aqui estamos incrementando o número da parcela
+        parcelas: i + 1, // Incrementa o número da parcela
         ...rest, // Inclui o restante dos dados (descricao, tipo, forma, status)
       });
 
-      contasCriadas.push(novaConta);
+      contasCriadas.push(novaConta); // Adiciona a nova conta à lista
     }
 
     return contasCriadas; // Retorna as contas criadas

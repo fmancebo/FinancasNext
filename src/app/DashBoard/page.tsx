@@ -160,6 +160,7 @@ const MyBarChart = () => {
       .filter(
         (conta) =>
           conta.tipo === "saida" &&
+          conta.forma === "credito" &&
           (conta.status === "vencido" || conta.status === "pendente")
       )
       .reduce((acc, conta) => acc + conta.valor, 0);
@@ -223,7 +224,7 @@ const MyBarChart = () => {
 
   return (
     <ChartContainer>
-      <h2>DashBoard</h2>
+      <h2>Resumo Financeiro</h2>
       <ChartWrapper>
         <h3>Débito</h3>
         <Bar data={debitData} options={options} />
