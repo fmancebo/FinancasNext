@@ -28,7 +28,10 @@ export const HeaderWrapper = styled.header`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
-export const MenuButton = styled.button<{ isOpen: boolean }>`
+export const MenuButton = styled.button.withConfig({
+  // Evita que a prop `isOpen` seja passada para o DOM
+  shouldForwardProp: (prop) => prop !== "isOpen",
+})<{ isOpen: boolean }>`
   background: none;
   border: none;
   font-size: 24px;

@@ -18,7 +18,9 @@ const Menu = ({ setIsMenuOpen }: MenuProps) => {
 
   return (
     <MenuWrapper>
-      <MenuItem onClick={handleLinkClick}>Dashboard</MenuItem>
+      <Link href="/DashBoard">
+        <MenuItem onClick={handleLinkClick}>Dashboard</MenuItem>
+      </Link>
       <Link href="/Count">
         <MenuItem onClick={handleLinkClick}>Contas</MenuItem>
       </Link>
