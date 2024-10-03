@@ -62,8 +62,8 @@ export const options: NextAuthOptions = {
         }
 
         const isPasswordValid = await checkPassword(
-          credentials.password,
-          user.password
+          user.password,
+          credentials.password
         );
 
         if (!isPasswordValid) {
@@ -79,6 +79,9 @@ export const options: NextAuthOptions = {
       },
     }),
   ],
+  pages: {
+    signIn: "/auth/signin",
+  },
   session: {
     strategy: "jwt",
   },

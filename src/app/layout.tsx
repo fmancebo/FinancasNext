@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
-import Header from "./components/Header";
+import ClientSideHeaderWrapper from "./components/ClientSideHeaderWrapper";
+// import Header from "./components/Header";
 
 export const metadata: Metadata = {
   title: "Finanças",
@@ -17,7 +18,7 @@ export default function RootLayout({
     <html lang="pt-br">
       <body className="antialiased">
         <SessionProviderWrapper>
-          <Header />
+          <ClientSideHeaderWrapper />
           {children}
         </SessionProviderWrapper>
       </body>
