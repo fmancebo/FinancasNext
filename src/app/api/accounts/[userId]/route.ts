@@ -11,7 +11,7 @@ interface AccountRequestData {
   descricao?: string;
   tipo?: string;
   forma?: string;
-  dataVencimento?: string;
+  dataVencimento?: Date;
   status?: string;
   parcelas?: number;
 }

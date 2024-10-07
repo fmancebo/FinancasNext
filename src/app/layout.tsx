@@ -16,6 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#f5f5f5" />
+      </head>
       <body className="antialiased">
         <SessionProviderWrapper>
           <ClientSideHeaderWrapper />
