@@ -11,6 +11,7 @@ import {
   Select,
   RadioGroup,
   RadioButton,
+  InputRadion,
   Button,
 } from "../../AddTransaction/styles";
 import { useSession } from "next-auth/react";
@@ -180,7 +181,7 @@ const EditTransaction: React.FC<EditTransactionProps> = ({ params }) => {
                 <Label>Tipo de Transação:</Label>
                 <RadioGroup>
                   <RadioButton>
-                    <Input
+                    <InputRadion
                       type="radio"
                       id="entrada"
                       name="tipo"
@@ -191,12 +192,12 @@ const EditTransaction: React.FC<EditTransactionProps> = ({ params }) => {
                     <Label htmlFor="entrada">Entrada</Label>
                     <FaArrowCircleUp
                       color="green"
-                      size={36}
-                      style={{ marginLeft: "10px" }}
+                      size={18}
+                      style={{ marginLeft: "5px" }}
                     />
                   </RadioButton>
                   <RadioButton>
-                    <Input
+                    <InputRadion
                       type="radio"
                       id="saida"
                       name="tipo"
@@ -207,8 +208,8 @@ const EditTransaction: React.FC<EditTransactionProps> = ({ params }) => {
                     <Label htmlFor="saida">Saída</Label>
                     <FaArrowCircleDown
                       color="red"
-                      size={36}
-                      style={{ marginLeft: "10px" }}
+                      size={18}
+                      style={{ marginLeft: "5px" }}
                     />
                   </RadioButton>
                 </RadioGroup>

@@ -12,6 +12,7 @@ import {
   Select,
   RadioGroup,
   RadioButton,
+  InputRadion,
   Button,
 } from "./styles";
 import { LoadingComponents, SpinnerComponents } from "../components/Loading";
@@ -125,7 +126,7 @@ const AddTransaction = () => {
             <Label>Tipo de Transação:</Label>
             <RadioGroup>
               <RadioButton>
-                <Input
+                <InputRadion
                   type="radio"
                   id="entrada"
                   name="tipo"
@@ -133,15 +134,17 @@ const AddTransaction = () => {
                   checked={formData.tipo === "entrada"}
                   onChange={handleChange}
                 />
-                <Label htmlFor="entrada">Entrada</Label>
+                <Label htmlFor="entrada" style={{ marginLeft: "5px" }}>
+                  Entrada
+                </Label>
                 <FaArrowCircleUp
                   color="green"
-                  size={36}
-                  style={{ marginLeft: "10px" }}
+                  size={18}
+                  style={{ marginLeft: "5px" }}
                 />
               </RadioButton>
               <RadioButton>
-                <Input
+                <InputRadion
                   type="radio"
                   id="saida"
                   name="tipo"
@@ -149,11 +152,13 @@ const AddTransaction = () => {
                   checked={formData.tipo === "saida"}
                   onChange={handleChange}
                 />
-                <Label htmlFor="saida">Saída</Label>
+                <Label htmlFor="saida" style={{ marginLeft: "5px" }}>
+                  Saída
+                </Label>
                 <FaArrowCircleDown
                   color="red"
-                  size={36}
-                  style={{ marginLeft: "10px" }}
+                  size={18}
+                  style={{ marginLeft: "5px" }}
                 />
               </RadioButton>
             </RadioGroup>

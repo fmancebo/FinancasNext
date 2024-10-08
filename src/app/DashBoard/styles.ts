@@ -11,7 +11,7 @@ export const ChartContainer = styled.div`
   margin: 20px 0;
 
   @media screen and (max-width: 600px) {
-    height: calc(100vh - 50px);
+    height: calc(100vh - 85px);
   }
 `;
 

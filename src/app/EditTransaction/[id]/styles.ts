@@ -43,6 +43,7 @@ export const Input = styled.input`
 
 export const Select = styled.select`
   width: 100%;
+  height: 40px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -73,13 +74,17 @@ export const Select = styled.select`
 
 export const RadioGroup = styled.div`
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  width: 100%;
+  justify-content: space-around;
 `;
 
 export const RadioButton = styled.div`
   display: flex;
   align-items: center;
+`;
+
+export const InputRadion = styled.input`
+  margin-right: 5px;
 `;
 
 export const Button = styled.button`
