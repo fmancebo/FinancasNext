@@ -27,5 +27,5 @@ export async function middleware(req: NextRequest) {
 
 // Define as rotas que o middleware deve proteger
 export const config = {
-  matcher: ["/Dashboard", "/Count", "/AddTransaction", "/EditTransaction"],
+  matcher: ["/", "/Dashboard", "/Count", "/AddTransaction", "/EditTransaction"],
 };
