@@ -1,16 +1,33 @@
 import styled from "styled-components";
 
+export const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  height: calc(100vh - 50px);
+  width: 100vw;
+`;
+
 export const FormWrapper = styled.div`
+  display: flex;
   width: 100%;
-  max-width: 400px;
+  height: 100%;
+  max-width: 500px;
+  flex-direction: column;
   margin: 0 auto;
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin-bottom: 35px;
+  }
 `;
 
 export const Field = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   margin-bottom: 15px;
 `;
 
@@ -71,6 +88,9 @@ export const RadioButton = styled.div`
 `;
 
 export const Button = styled.button`
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
   width: 100%;
   background-color: #00532d;
   color: white;

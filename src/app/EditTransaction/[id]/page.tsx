@@ -3,6 +3,7 @@
 import { FaArrowCircleDown, FaArrowCircleUp } from "react-icons/fa";
 import React, { useEffect, useState } from "react";
 import {
+  Container,
   FormWrapper,
   Field,
   Label,
@@ -139,142 +140,150 @@ const EditTransaction: React.FC<EditTransactionProps> = ({ params }) => {
   };
 
   return (
-    <FormWrapper>
-      {loading ? (
-        <Loading>
-          <Spinner />
-        </Loading>
-      ) : (
-        <>
-          <h2>Editar Transação</h2>
+    <Container>
+      <FormWrapper>
+        {loading ? (
+          <Loading>
+            <Spinner />
+          </Loading>
+        ) : (
+          <>
+            <h2>Editar Transação</h2>
 
-          <form onSubmit={handleSubmit}>
-            <Field>
-              <Label htmlFor="valor">Valor:</Label>
-              <Input
-                type="number"
-                step="0.01"
-                id="valor"
-                name="valor"
-                value={transactionData.valor}
-                onChange={handleChange}
-                required
-              />
-            </Field>
+            <form onSubmit={handleSubmit}>
+              <Field>
+                <Label htmlFor="valor">Valor:</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  id="valor"
+                  name="valor"
+                  value={transactionData.valor}
+                  onChange={handleChange}
+                  required
+                />
+              </Field>
 
-            <Field>
-              <Label htmlFor="descricao">Descrição:</Label>
-              <Input
-                type="text"
-                id="descricao"
-                name="descricao"
-                value={transactionData.descricao}
-                onChange={handleChange}
-                required
-              />
-            </Field>
+              <Field>
+                <Label htmlFor="descricao">Descrição:</Label>
+                <Input
+                  type="text"
+                  id="descricao"
+                  name="descricao"
+                  value={transactionData.descricao}
+                  onChange={handleChange}
+                  required
+                />
+              </Field>
 
-            <Field>
-              <Label>Tipo de Transação:</Label>
-              <RadioGroup>
-                <RadioButton>
-                  <Input
-                    type="radio"
-                    id="entrada"
-                    name="tipo"
-                    value="entrada"
-                    checked={transactionData.tipo === "entrada"}
-                    onChange={handleChange}
-                  />
-                  <Label htmlFor="entrada">Entrada</Label>
-                  <FaArrowCircleUp
-                    color="green"
-                    size={36}
-                    style={{ marginLeft: "10px" }}
-                  />
-                </RadioButton>
-                <RadioButton>
-                  <Input
-                    type="radio"
-                    id="saida"
-                    name="tipo"
-                    value="saida"
-                    checked={transactionData.tipo === "saida"}
-                    onChange={handleChange}
-                  />
-                  <Label htmlFor="saida">Saída</Label>
-                  <FaArrowCircleDown
-                    color="red"
-                    size={36}
-                    style={{ marginLeft: "10px" }}
-                  />
-                </RadioButton>
-              </RadioGroup>
-            </Field>
+              <Field>
+                <Label>Tipo de Transação:</Label>
+                <RadioGroup>
+                  <RadioButton>
+                    <Input
+                      type="radio"
+                      id="entrada"
+                      name="tipo"
+                      value="entrada"
+                      checked={transactionData.tipo === "entrada"}
+                      onChange={handleChange}
+                    />
+                    <Label htmlFor="entrada">Entrada</Label>
+                    <FaArrowCircleUp
+                      color="green"
+                      size={36}
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </RadioButton>
+                  <RadioButton>
+                    <Input
+                      type="radio"
+                      id="saida"
+                      name="tipo"
+                      value="saida"
+                      checked={transactionData.tipo === "saida"}
+                      onChange={handleChange}
+                    />
+                    <Label htmlFor="saida">Saída</Label>
+                    <FaArrowCircleDown
+                      color="red"
+                      size={36}
+                      style={{ marginLeft: "10px" }}
+                    />
+                  </RadioButton>
+                </RadioGroup>
+              </Field>
 
-            <Field>
-              <Label htmlFor="forma">Forma de Pagamento:</Label>
-              <Select
-                id="forma"
-                name="forma"
-                value={transactionData.forma}
-                onChange={handleChange}
-                required
+              <Field>
+                <Label htmlFor="forma">Forma de Pagamento:</Label>
+                <Select
+                  id="forma"
+                  name="forma"
+                  value={transactionData.forma}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="debito">Débito</option>
+                  <option value="credito">Crédito</option>
+                  <option value="outro">Outro</option>
+                </Select>
+              </Field>
+
+              <Field>
+                <Label htmlFor="dataVencimento">Data de Vencimento:</Label>
+                <Input
+                  type="date"
+                  id="dataVencimento"
+                  name="dataVencimento"
+                  value={transactionData.dataVencimento}
+                  onChange={handleChange}
+                  required
+                />
+              </Field>
+
+              <Field>
+                <Label htmlFor="status">Status:</Label>
+                <Select
+                  id="status"
+                  name="status"
+                  value={transactionData.status}
+                  onChange={handleChange}
+                >
+                  <option value="pendente">Pendente</option>
+                  <option value="paga">Paga</option>
+                  <option value="vencida">Vencida</option>
+                </Select>
+              </Field>
+              {loadingC ? (
+                <LoadingComponents>
+                  <SpinnerComponents />
+                </LoadingComponents>
+              ) : (
+                <Button type="submit">Atualizar Transação</Button>
+              )}
+            </form>
+            {success && (
+              <p
+                style={{
+                  color: "green",
+                  textAlign: "center",
+                  marginTop: "10px",
+                }}
               >
-                <option value="debito">Débito</option>
-                <option value="credito">Crédito</option>
-                <option value="outro">Outro</option>
-              </Select>
-            </Field>
-
-            <Field>
-              <Label htmlFor="dataVencimento">Data de Vencimento:</Label>
-              <Input
-                type="date"
-                id="dataVencimento"
-                name="dataVencimento"
-                value={transactionData.dataVencimento}
-                onChange={handleChange}
-                required
-              />
-            </Field>
-
-            <Field>
-              <Label htmlFor="status">Status:</Label>
-              <Select
-                id="status"
-                name="status"
-                value={transactionData.status}
-                onChange={handleChange}
-              >
-                <option value="pendente">Pendente</option>
-                <option value="paga">Paga</option>
-                <option value="vencida">Vencida</option>
-              </Select>
-            </Field>
-            {loadingC ? (
-              <LoadingComponents>
-                <SpinnerComponents />
-              </LoadingComponents>
-            ) : (
-              <Button type="submit">Atualizar Transação</Button>
+                {success}
+              </p>
             )}
-          </form>
-          {success && (
-            <p
-              style={{ color: "green", textAlign: "center", marginTop: "10px" }}
-            >
-              {success}
-            </p>
-          )}
-          {error && (
-            <p style={{ color: "red", textAlign: "center", marginTop: "10px" }}>
-              {error}
-            </p>
-          )}
-        </>
-      )}
-    </FormWrapper>
+            {error && (
+              <p
+                style={{ color: "red", textAlign: "center", marginTop: "10px" }}
+              >
+                {error}
+              </p>
+            )}
+          </>
+        )}
+      </FormWrapper>
+    </Container>
   );
 };
 
