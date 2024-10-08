@@ -5,6 +5,10 @@ export const Container = styled.div`
   justify-content: center;
   height: calc(100vh - 50px);
   width: 100vw;
+
+  @media screen and (min-width: 600px) {
+    height: 100%;
+  }
 `;
 
 export const FormWrapper = styled.div`
